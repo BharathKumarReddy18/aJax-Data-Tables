@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML Table with AJAX Data</title>
+    
+    <!-- jQuery Library -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- DataTables CSS and JS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.1/css/jquery.dataTables.min.css">
+    <script src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js"></script>
+    
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+    </style>
+</head>
+<body>
+    <h2>User Information Table</h2>
+    <table id="datatable">
+        <thead>
+            <tr>
+                <th>User ID</th>
+                <th>Full Name</th>
+                <th>DOB</th>
+                <th>Location</th>
+                <th>Email</th>
+                <th>Languages Known</th>
+                <th>Hobbies</th>
+            </tr>
+        </thead>
+        <tbody>
+            
+        </tbody>
+    </table>
+
+    <script>
+        $(document).ready(function () {
+            $.ajax({
+                url: 'https://dummyapi.online/api/social-profiles', 
+                method: 'GET',
+                dataType: 'JSON',
+                success: function (data) {
+                    console.log(data);  // Check the API response
+                    $('#datatable').DataTable({
+                        data: data,
+                        pageLength: 5,
+                        lengthMenu: [5, 10, 15, 20],
+                        searching: true,  // Enable search functionality
+                        searchDelay: 0,
+                        columns: [
+                            { data: 'userId' },           
+                            { 
+                                data: 'fullName', 
+                                render: function (data) {
+                                    return data ? data : 'No Name Provided'; // Replace nulls for Full Name
+                                } 
+                            },      
+                            { 
+                                data: 'birthDate', 
+                                render: function (data) {
+                                    if (data) {
+                                        const date = new Date(data); // Convert string to Date
+                                        return isNaN(date) ? '-' : date.toLocaleDateString(); // Return formatted date or '-'
+                                    }
+                                    return '-'; // If birthDate is missing, show '-'
+                                } 
+                            },         
+                            { 
+                                data: 'location', 
+                                render: function (data) {
+                                    return data ? data : 'Unknown Location'; 
+                                } 
+                            },    
+                            { 
+                                data: 'email', 
+                                render: function (data) {
+                                    return data ? data : 'No Email Provided'; 
+                                } 
+                            },       
+                            { 
+                                data: 'languages', 
+                                render: function (data) {
+                                    return data ? data : 'Not Specified'; 
+                                } 
+                            },    
+                            { 
+                                data: 'hobbies', 
+                                render: function (data)  {
+                                    return data && data.length ? data.join(', ') : 'None';  // Join hobbies array into a string
+                                }  
+                            }
+                        ]
+                    });
+                },
+                error: function (err) {
+                    console.error('Error fetching data:', err);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
